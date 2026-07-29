@@ -18,9 +18,16 @@
         "minWidth": 900,
         "minHeight": 600,
         "decorations": false,
-        "transparent": true
+        "transparent": false,
+        "center": true,
+        "resizable": true,
+        "fullscreen": false,
+        "visible": true
       }
-    ]
+    ],
+    "security": {
+      "csp": null
+    }
   },
   "bundle": {
     "active": true,
@@ -31,15 +38,44 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "resources": [],
+    "externalBin": [],
+    "copyright": "© 2024 OpenFetch Contributors",
+    "category": "Utility",
+    "shortDescription": "The last download manager you'll ever need.",
+    "longDescription": "OpenFetch is a modern, blazing-fast, extensible download manager built with Tauri and Rust. Features a beautiful glassmorphism UI, chunked downloads with resume support, and a powerful plugin system.",
+    "linux": {
+      "deb": {
+        "depends": []
+      },
+      "rpm": {
+        "depends": []
+      },
+      "appimage": {
+        "bundleMediaFramework": true
+      }
+    },
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null,
+      "minimumSystemVersion": "10.13"
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      }
+    }
   },
   "plugins": {
-    "shell": {},
-    "dialog": {},
-    "notification": {},
-    "clipboardManager": {},
-    "fs": {},
-    "http": {},
-    "os": {}
+    "shell": {
+      "open": true
+    }
   }
 }
