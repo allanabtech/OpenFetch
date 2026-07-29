@@ -7,8 +7,17 @@ import { listen } from '@tauri-apps/api/event';
 export const analyzeUrl = (url: string): Promise<UrlAnalysis> => 
   invoke('analyze_url', { url });
 
-export const startDownload = (url: string, options?: DownloadOptions): Promise<string> => 
-  invoke('start_download', { url, options });
+export const startDownload = (url: string, options?: DownloadOptions): Promise<string> => {
+  const opts = options || {
+    save_path: '',
+    filename: '',
+    chunk_count: 8,
+    max_retries: 3,
+    headers: {},
+    cookies: {}
+  };
+  return invoke('start_download', { url, options: opts });
+};
 
 export const pauseDownload = (id: string): Promise<void> => 
   invoke('pause_download', { id });
@@ -74,5 +83,5 @@ export const chooseDownloadFolder = (): Promise<string | null> =>
   invoke('choose_download_folder');
 
 export const onDownloadProgress = (callback: (payload: any) => void) => {
-  return listen('download_progress', (event) => callback(event.payload));
+  return listen('download-progress', (event) => callback(event.payload));
 };

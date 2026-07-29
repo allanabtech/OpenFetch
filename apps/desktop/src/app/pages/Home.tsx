@@ -1,22 +1,56 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Github, Download } from 'lucide-react'
+import { Search } from 'lucide-react'
 import URLAnalyzer from '../../components/analyzer/URLAnalyzer'
+import { analyzeUrl, startDownload } from '../../lib/tauri'
+import { UrlAnalysis } from '../../lib/types'
 
 export default function Home() {
   const [url, setUrl] = useState('')
-  const [analyzed, setAnalyzed] = useState(false)
+  const [analysis, setAnalysis] = useState<UrlAnalysis | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  const handleAnalyze = (e: React.FormEvent) => {
+  const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (url) setAnalyzed(true)
+    if (!url.trim()) return
+
+    setLoading(true)
+    try {
+      const res = await analyzeUrl(url.trim())
+      setAnalysis(res)
+    } catch (err) {
+      console.warn('URL analysis fallback:', err)
+      // Fallback analysis if offline/custom
+      setAnalysis({
+        url: url.trim(),
+        file_name: url.split('/').pop() || 'download.bin',
+        media_type: 'generic',
+        plugin_id: 'generic-http',
+        is_authentication_required: false,
+        is_publicly_available: true,
+        available_formats: ['Default']
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleStartDownload = async (targetAnalysis: UrlAnalysis) => {
+    await startDownload(targetAnalysis.url, {
+      filename: targetAnalysis.file_name || 'download.bin',
+      save_path: '',
+      chunk_count: 8,
+      max_retries: 3,
+      headers: {},
+      cookies: {}
+    })
   }
 
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
-      className="p-8 h-full flex flex-col items-center justify-center relative"
+      className="p-8 h-full flex flex-col items-center justify-center relative min-h-[500px]"
     >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent-violet/10 via-base to-base pointer-events-none" />
       
@@ -54,14 +88,14 @@ export default function Home() {
               placeholder="Paste any URL here..." 
               className="flex-1 bg-transparent border-none outline-none text-white p-4 placeholder-gray-500"
             />
-            <button type="submit" className="btn-primary mr-2">
-              Analyze
+            <button type="submit" disabled={loading} className="btn-primary mr-2">
+              {loading ? 'Analyzing...' : 'Analyze'}
             </button>
           </div>
         </motion.form>
 
-        {analyzed && (
-          <URLAnalyzer analysis={{ url, media_type: 'generic', plugin_id: 'core', is_authentication_required: false, is_publicly_available: true }} />
+        {analysis && (
+          <URLAnalyzer analysis={analysis} onStartDownload={handleStartDownload} />
         )}
       </div>
     </motion.div>

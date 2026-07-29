@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Home, Download, ListOrdered, History, Star, Puzzle, Globe, BarChart2, Settings, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Home, Download, ListOrdered, History, Star, Puzzle, Globe, BarChart2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useDownloads } from '../../hooks/useDownloads'
 
 const navItems = [
@@ -13,7 +13,6 @@ const navItems = [
   { path: '/plugins', label: 'Plugins', icon: Puzzle },
   { path: '/browser', label: 'Browser', icon: Globe },
   { path: '/analytics', label: 'Analytics', icon: BarChart2 },
-  { path: '/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function Sidebar() {
@@ -39,7 +38,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-        {navItems.map((item, i) => (
+        {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
@@ -71,7 +70,12 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-2 border-t border-white/5">
+      <div className="p-2 border-t border-white/5 flex flex-col items-center">
+        {!collapsed && (
+          <p className="text-[10px] text-gray-500/80 mb-2 font-medium">
+            Made with ❤️ and energy drinks
+          </p>
+        )}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="w-full flex items-center justify-center p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"

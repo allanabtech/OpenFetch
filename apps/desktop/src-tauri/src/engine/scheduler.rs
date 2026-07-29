@@ -1,10 +1,11 @@
 use anyhow::Result;
 use std::collections::HashMap;
 use std::sync::Arc;
+use tauri::AppHandle;
 use tokio::sync::{Mutex, Semaphore};
 use tokio::task::JoinSet;
 
-use crate::engine::downloader::{DownloadOptions, DownloadTask, DownloadStatus};
+use crate::engine::downloader::{self, DownloadOptions, DownloadTask, DownloadStatus};
 
 pub struct DownloadScheduler {
     pub max_concurrent: usize,
@@ -23,19 +24,32 @@ impl DownloadScheduler {
         }
     }
 
-    pub async fn add(&mut self, url: String, options: DownloadOptions) -> Result<String> {
+    pub async fn add(
+        &mut self,
+        url: String,
+        options: DownloadOptions,
+        app_handle: Option<AppHandle>,
+    ) -> Result<String> {
         let id = uuid::Uuid::new_v4().to_string();
         let task = Arc::new(Mutex::new(DownloadTask {
             id: id.clone(),
-            url,
-            file_path: format!("{}/{}", options.save_path, options.filename),
+            url: url.clone(),
+            file_path: "".to_string(),
             status: DownloadStatus::Pending,
             total_bytes: 0,
             downloaded_bytes: 0,
             speed_bps: 0,
             chunks: vec![],
         }));
-        self.tasks.insert(id.clone(), task);
+
+        self.tasks.insert(id.clone(), task.clone());
+
+        // Spawn async background downloader
+        let task_ref = task.clone();
+        tokio::spawn(async move {
+            let _ = downloader::download(task_ref, options, app_handle).await;
+        });
+
         Ok(id)
     }
 
@@ -47,10 +61,13 @@ impl DownloadScheduler {
         Ok(())
     }
 
-    pub async fn resume(&mut self, id: &str) -> Result<()> {
+    pub async fn resume(&mut self, id: &str, app_handle: Option<AppHandle>) -> Result<()> {
         if let Some(task) = self.tasks.get(id) {
-            let mut t = task.lock().await;
-            t.status = DownloadStatus::Pending;
+            let task_ref = task.clone();
+            let options = DownloadOptions::default();
+            tokio::spawn(async move {
+                let _ = downloader::download(task_ref, options, app_handle).await;
+            });
         }
         Ok(())
     }
@@ -63,8 +80,8 @@ impl DownloadScheduler {
         Ok(())
     }
     
-    pub async fn retry(&mut self, id: &str) -> Result<()> {
-        self.resume(id).await
+    pub async fn retry(&mut self, id: &str, app_handle: Option<AppHandle>) -> Result<()> {
+        self.resume(id, app_handle).await
     }
     
     pub async fn delete(&mut self, id: &str, _delete_file: bool) -> Result<()> {

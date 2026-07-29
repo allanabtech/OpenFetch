@@ -39,12 +39,13 @@ impl From<DownloadTask> for Download {
 
 #[tauri::command]
 pub async fn start_download(
+    app: tauri::AppHandle,
     url: String,
     options: DownloadOptions,
     scheduler: State<'_, Arc<Mutex<DownloadScheduler>>>,
 ) -> Result<String, String> {
     let mut scheduler = scheduler.lock().await;
-    scheduler.add(url, options).await.map_err(|e| e.to_string())
+    scheduler.add(url, options, Some(app)).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -58,11 +59,12 @@ pub async fn pause_download(
 
 #[tauri::command]
 pub async fn resume_download(
+    app: tauri::AppHandle,
     id: String,
     scheduler: State<'_, Arc<Mutex<DownloadScheduler>>>,
 ) -> Result<(), String> {
     let mut scheduler = scheduler.lock().await;
-    scheduler.resume(&id).await.map_err(|e| e.to_string())
+    scheduler.resume(&id, Some(app)).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -76,11 +78,12 @@ pub async fn cancel_download(
 
 #[tauri::command]
 pub async fn retry_download(
+    app: tauri::AppHandle,
     id: String,
     scheduler: State<'_, Arc<Mutex<DownloadScheduler>>>,
 ) -> Result<(), String> {
     let mut scheduler = scheduler.lock().await;
-    scheduler.retry(&id).await.map_err(|e| e.to_string())
+    scheduler.retry(&id, Some(app)).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]

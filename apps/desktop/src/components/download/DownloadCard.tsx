@@ -1,40 +1,86 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Download } from '../../lib/types'
-import { Pause, Play, X, RotateCcw, Folder, Trash2 } from 'lucide-react'
+import { Pause, Play, Folder, Trash2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { pauseDownload, resumeDownload, deleteDownload, openDownloadFolder } from '../../lib/tauri'
 
 export default function DownloadCard({ download }: { download: Download }) {
-  const progress = download.total_bytes > 0 ? (download.downloaded_bytes / download.total_bytes) * 100 : 0
-  
+  const filename = download.filename || download.file_path?.split(/[/\\]/).pop() || 'download.bin'
+  const progress = download.total_bytes > 0 
+    ? Math.min(100, (download.downloaded_bytes / download.total_bytes) * 100) 
+    : (download.status === 'Completed' ? 100 : 0)
+
+  const speedMBs = (download.speed_bps / (1024 * 1024)).toFixed(2)
+  const downloadedMB = (download.downloaded_bytes / (1024 * 1024)).toFixed(2)
+  const totalMB = download.total_bytes > 0 ? (download.total_bytes / (1024 * 1024)).toFixed(2) : '?'
+
+  const handlePauseResume = async () => {
+    if (download.status === 'Downloading') {
+      await pauseDownload(download.id)
+    } else {
+      await resumeDownload(download.id)
+    }
+  }
+
+  const handleOpenFolder = async () => {
+    await openDownloadFolder(download.id)
+  }
+
+  const handleDelete = async () => {
+    await deleteDownload(download.id, false)
+  }
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="glass p-4 group relative overflow-hidden"
+      className="glass p-4 group relative overflow-hidden rounded-xl border border-white/10"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-white truncate">{download.filename}</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-white truncate text-sm">{filename}</h3>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full capitalize font-medium ${
+              download.status === 'Completed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+              download.status === 'Downloading' ? 'bg-accent-violet/20 text-violet-300 border border-accent-violet/30 animate-pulse' :
+              download.status === 'Failed' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+              'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+            }`}>
+              {download.status}
+            </span>
+          </div>
           <p className="text-xs text-gray-400 truncate mt-1">{download.url}</p>
         </div>
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          {download.status === 'downloading' ? (
-            <button className="p-1.5 hover:bg-white/10 rounded-md text-gray-300"><Pause size={16} /></button>
-          ) : (
-            <button className="p-1.5 hover:bg-white/10 rounded-md text-gray-300"><Play size={16} /></button>
-          )}
-          <button className="p-1.5 hover:bg-white/10 rounded-md text-gray-300"><Folder size={16} /></button>
-          <button className="p-1.5 hover:bg-red-500/20 rounded-md text-red-400"><Trash2 size={16} /></button>
+
+        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          {download.status === 'Downloading' ? (
+            <button onClick={handlePauseResume} className="p-1.5 hover:bg-white/10 rounded-md text-gray-300 transition-colors" title="Pause">
+              <Pause size={16} />
+            </button>
+          ) : download.status !== 'Completed' ? (
+            <button onClick={handlePauseResume} className="p-1.5 hover:bg-white/10 rounded-md text-gray-300 transition-colors" title="Resume">
+              <Play size={16} />
+            </button>
+          ) : null}
+          <button onClick={handleOpenFolder} className="p-1.5 hover:bg-white/10 rounded-md text-gray-300 transition-colors" title="Open folder">
+            <Folder size={16} />
+          </button>
+          <button onClick={handleDelete} className="p-1.5 hover:bg-red-500/20 rounded-md text-red-400 transition-colors" title="Delete">
+            <Trash2 size={16} />
+          </button>
         </div>
       </div>
       
       <div className="mt-4 space-y-2">
         <div className="flex items-center justify-between text-xs text-gray-400">
-          <span>{(download.downloaded_bytes / 1024 / 1024).toFixed(2)} MB / {(download.total_bytes / 1024 / 1024).toFixed(2)} MB</span>
+          <span>{downloadedMB} MB / {totalMB} MB</span>
+          {download.status === 'Downloading' && (
+            <span className="text-accent-cyan font-mono">{speedMBs} MB/s</span>
+          )}
           <span>{progress.toFixed(1)}%</span>
         </div>
-        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
           <motion.div 
             className="h-full bg-gradient-to-r from-accent-violet to-accent-cyan"
             initial={{ width: 0 }}

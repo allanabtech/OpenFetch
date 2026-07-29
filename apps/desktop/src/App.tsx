@@ -11,11 +11,9 @@ import Favorites from './app/pages/Favorites'
 import Plugins from './app/pages/Plugins'
 import Browser from './app/pages/Browser'
 import Analytics from './app/pages/Analytics'
-import Settings from './app/pages/Settings'
 
 export default function App() {
   useEffect(() => {
-    // Basic initialization could go here
     document.documentElement.classList.add('dark')
   }, [])
 
@@ -25,20 +23,24 @@ export default function App() {
         <Titlebar />
         <div className="flex flex-1 overflow-hidden relative">
           <Sidebar />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
-            <AnimatePresence mode="wait">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/downloads" element={<Downloads />} />
-                <Route path="/queue" element={<Queue />} />
-                <Route path="/history" element={<History />} />
-                <Route path="/favorites" element={<Favorites />} />
-                <Route path="/plugins" element={<Plugins />} />
-                <Route path="/browser" element={<Browser />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </AnimatePresence>
+          <main className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col">
+            <div className="flex-1">
+              <AnimatePresence mode="wait">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/downloads" element={<Downloads />} />
+                  <Route path="/queue" element={<Queue />} />
+                  <Route path="/history" element={<History />} />
+                  <Route path="/favorites" element={<Favorites />} />
+                  <Route path="/plugins" element={<Plugins />} />
+                  <Route path="/browser" element={<Browser />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                </Routes>
+              </AnimatePresence>
+            </div>
+            <footer className="py-2 px-4 text-center text-[11px] text-gray-500/70 select-none border-t border-white/5 bg-surface/30">
+              Made with ❤️ and energy drinks
+            </footer>
           </main>
         </div>
       </div>
