@@ -20,7 +20,6 @@ export default function Home() {
       setAnalysis(res)
     } catch (err) {
       console.warn('URL analysis fallback:', err)
-      // Fallback analysis if offline/custom
       setAnalysis({
         url: url.trim(),
         file_name: url.split('/').pop() || 'download.bin',
@@ -28,16 +27,30 @@ export default function Home() {
         plugin_id: 'generic-http',
         is_authentication_required: false,
         is_publicly_available: true,
-        available_formats: ['Default']
+        available_formats: [
+          '1080p Full HD (MP4)',
+          '720p HD (MP4)',
+          '480p SD (MP4)',
+          'MP3 High Quality (320kbps)',
+          'Original File (Best Quality)'
+        ]
       })
     } finally {
       setLoading(false)
     }
   }
 
-  const handleStartDownload = async (targetAnalysis: UrlAnalysis) => {
+  const handleStartDownload = async (targetAnalysis: UrlAnalysis, selectedFormat?: string) => {
+    const isAudio = selectedFormat?.includes('MP3') || selectedFormat?.includes('FLAC') || selectedFormat?.includes('Audio')
+    const ext = isAudio ? '.mp3' : '.mp4'
+    let customFilename = targetAnalysis.file_name || 'download.bin'
+
+    if (targetAnalysis.media_type === 'video' && !customFilename.endsWith(ext) && !customFilename.endsWith('.mp4')) {
+      customFilename = `${customFilename.split('.')[0]}${ext}`
+    }
+
     await startDownload(targetAnalysis.url, {
-      filename: targetAnalysis.file_name || 'download.bin',
+      filename: customFilename,
       save_path: '',
       chunk_count: 8,
       max_retries: 3,

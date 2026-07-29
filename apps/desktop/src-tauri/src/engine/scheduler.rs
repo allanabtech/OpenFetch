@@ -115,7 +115,24 @@ impl DownloadScheduler {
         Ok(())
     }
     
-    pub fn open_folder(&self, _id: &str) -> Result<()> {
+    pub fn open_folder(&self, id: &str) -> Result<()> {
+        if let Some(task) = self.tasks.get(id) {
+            if let Ok(t) = task.try_lock() {
+                if !t.file_path.is_empty() {
+                    let path = std::path::Path::new(&t.file_path);
+                    let folder = if path.is_file() || path.extension().is_some() {
+                        path.parent().unwrap_or(path)
+                    } else {
+                        path
+                    };
+                    let _ = open::that(folder);
+                    return Ok(());
+                }
+            }
+        }
+        if let Some(dir) = dirs::download_dir() {
+            let _ = open::that(dir);
+        }
         Ok(())
     }
 }

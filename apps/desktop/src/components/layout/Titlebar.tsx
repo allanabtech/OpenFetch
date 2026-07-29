@@ -1,9 +1,36 @@
 import React from 'react'
-import { Window } from '@tauri-apps/api/window'
+import { getCurrentWindow } from '@tauri-apps/api/window'
 import { Minus, Square, X } from 'lucide-react'
 
 export default function Titlebar() {
-  const appWindow = new Window('main')
+  const handleMinimize = async () => {
+    try {
+      await getCurrentWindow().minimize()
+    } catch (err) {
+      console.error('Minimize failed:', err)
+    }
+  }
+
+  const handleMaximize = async () => {
+    try {
+      const win = getCurrentWindow()
+      if (await win.isMaximized()) {
+        await win.unmaximize()
+      } else {
+        await win.maximize()
+      }
+    } catch (err) {
+      console.error('Maximize failed:', err)
+    }
+  }
+
+  const handleClose = async () => {
+    try {
+      await getCurrentWindow().close()
+    } catch (err) {
+      console.error('Close failed:', err)
+    }
+  }
 
   return (
     <div 
@@ -20,20 +47,23 @@ export default function Titlebar() {
       
       <div className="flex items-center gap-1">
         <button 
-          onClick={() => appWindow.minimize()}
+          onClick={handleMinimize}
           className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 text-gray-400 transition-colors"
+          title="Minimize"
         >
           <Minus size={14} />
         </button>
         <button 
-          onClick={() => appWindow.toggleMaximize()}
+          onClick={handleMaximize}
           className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 text-gray-400 transition-colors"
+          title="Maximize"
         >
           <Square size={12} />
         </button>
         <button 
-          onClick={() => appWindow.close()}
+          onClick={handleClose}
           className="w-7 h-7 flex items-center justify-center rounded hover:bg-red-500/80 hover:text-white text-gray-400 transition-colors"
+          title="Close"
         >
           <X size={14} />
         </button>
