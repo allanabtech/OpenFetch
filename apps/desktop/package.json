@@ -43,7 +43,7 @@
     "@radix-ui/react-tooltip": "^1",
     "@radix-ui/react-scroll-area": "^1",
     "@radix-ui/react-avatar": "^1",
-    "@radix-ui/react-badge": "latest",
+    "@radix-ui/react-label": "^2",
     "@radix-ui/react-popover": "^1",
     "date-fns": "^3"
   },
