@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
-use std::sync::atomic::{AtomicBool, Ordering};
 
 use crate::engine::chunk::Chunk;
 
@@ -61,7 +60,7 @@ pub enum DownloadEvent {
 
 pub async fn download(
     task: Arc<Mutex<DownloadTask>>,
-    options: DownloadOptions,
+    _options: DownloadOptions,
     event_tx: mpsc::Sender<DownloadEvent>,
 ) -> Result<()> {
     // Stub implementation
@@ -71,7 +70,7 @@ pub async fn download(
         t.id.clone()
     };
     
-    // Simulate some work
+    // Simulate work
     tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
     
     let mut t = task.lock().await;

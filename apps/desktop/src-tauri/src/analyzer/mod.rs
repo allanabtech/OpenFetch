@@ -2,7 +2,7 @@ use anyhow::Result;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::commands::downloads::UrlAnalysis;
+use crate::commands::analyzer::UrlAnalysis;
 use crate::plugins::PluginManifest;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -17,7 +17,7 @@ pub enum MediaType {
     Generic,
 }
 
-pub async fn analyze_url(url: &str, client: &Client) -> Result<UrlAnalysis> {
+pub async fn analyze_url(url: &str, _client: &Client) -> Result<UrlAnalysis> {
     // Stub implementation
     Ok(UrlAnalysis {
         url: url.to_string(),
@@ -36,7 +36,7 @@ pub async fn analyze_url(url: &str, client: &Client) -> Result<UrlAnalysis> {
     })
 }
 
-pub fn detect_plugin(url: &str, plugins: &[PluginManifest]) -> Option<String> {
+pub fn detect_plugin(_url: &str, _plugins: &[PluginManifest]) -> Option<String> {
     // Stub
     None
 }

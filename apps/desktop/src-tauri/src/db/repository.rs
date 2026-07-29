@@ -5,7 +5,7 @@ use crate::db::schema::run_migrations;
 use crate::plugins::PluginInfo;
 
 pub struct Repository {
-    conn: Arc<Mutex<Connection>>,
+    _conn: Arc<Mutex<Connection>>,
 }
 
 impl Repository {
@@ -13,7 +13,7 @@ impl Repository {
         let conn = Connection::open(db_path)?;
         run_migrations(&conn)?;
         Ok(Self {
-            conn: Arc::new(Mutex::new(conn)),
+            _conn: Arc::new(Mutex::new(conn)),
         })
     }
 
@@ -31,8 +31,8 @@ impl Repository {
     pub fn disable_plugin(&self) -> Result<()> { Ok(()) }
     pub fn delete_plugin(&self) -> Result<()> { Ok(()) }
 
-    pub fn get_setting(&self, key: &str) -> Result<String> { Ok("".into()) }
-    pub fn set_setting(&self, key: &str, value: &str) -> Result<()> { Ok(()) }
+    pub fn get_setting(&self, _key: &str) -> Result<String> { Ok("".into()) }
+    pub fn set_setting(&self, _key: &str, _value: &str) -> Result<()> { Ok(()) }
     pub fn get_all_settings(&self) -> Result<()> { Ok(()) }
 
     pub fn create_chunk(&self) -> Result<()> { Ok(()) }

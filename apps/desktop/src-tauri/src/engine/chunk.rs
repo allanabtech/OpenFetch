@@ -1,7 +1,7 @@
 use anyhow::Result;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use tokio::fs::File;
 use tokio::sync::Mutex;
@@ -53,11 +53,11 @@ pub fn split_into_chunks(total_size: u64, count: usize) -> Vec<Chunk> {
 }
 
 pub async fn download_chunk(
-    client: &Client,
-    url: &str,
+    _client: &Client,
+    _url: &str,
     chunk: &mut Chunk,
-    file: Arc<Mutex<File>>,
-    cancel_flag: Arc<AtomicBool>,
+    _file: Arc<Mutex<File>>,
+    _cancel_flag: Arc<AtomicBool>,
 ) -> Result<()> {
     // Stub implementation
     chunk.status = ChunkStatus::Completed;
