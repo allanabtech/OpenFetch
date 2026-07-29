@@ -1,0 +1,10 @@
+{
+  "id": "google-drive",
+  "name": "Google Drive",
+  "version": "1.0.0",
+  "author": "OpenFetch Team",
+  "description": "Download files from Google Drive",
+  "permissions": ["network", "filesystem"],
+  "patterns": ["^https://drive\\.google\\.com/.*"],
+  "priority": 10
+}

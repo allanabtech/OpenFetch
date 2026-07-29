@@ -1,0 +1,10 @@
+{
+  "id": "sftp",
+  "name": "SFTP Downloader",
+  "version": "1.0.0",
+  "author": "OpenFetch Team",
+  "description": "Download files over SFTP",
+  "permissions": ["network", "filesystem"],
+  "patterns": ["^sftp://.*"],
+  "priority": 5
+}

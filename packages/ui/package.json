@@ -1,0 +1,14 @@
+{
+  "name": "@openfetch/ui",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "dependencies": {
+    "react": "^19",
+    "clsx": "^2",
+    "tailwind-merge": "^2"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

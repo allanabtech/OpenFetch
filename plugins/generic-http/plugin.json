@@ -1,0 +1,24 @@
+{
+  "id": "generic-http",
+  "name": "Generic HTTP Downloader",
+  "version": "1.0.0",
+  "author": "OpenFetch Team",
+  "description": "Download any direct HTTP/HTTPS URL with chunked downloading, resume support, and SHA-256 checksum verification.",
+  "permissions": ["network", "filesystem"],
+  "patterns": ["^https?://.*"],
+  "priority": 0,
+  "settings_schema": {
+    "user_agent": {
+      "type": "string",
+      "label": "User Agent",
+      "default": "OpenFetch/0.1.0",
+      "description": "HTTP User-Agent header to send with requests"
+    },
+    "chunk_count": {
+      "type": "number",
+      "label": "Chunk Count",
+      "default": 8,
+      "description": "Number of parallel download chunks"
+    }
+  }
+}

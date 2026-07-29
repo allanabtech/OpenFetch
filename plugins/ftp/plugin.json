@@ -1,0 +1,10 @@
+{
+  "id": "ftp",
+  "name": "FTP Downloader",
+  "version": "1.0.0",
+  "author": "OpenFetch Team",
+  "description": "Download files over FTP",
+  "permissions": ["network", "filesystem"],
+  "patterns": ["^ftp://.*"],
+  "priority": 5
+}

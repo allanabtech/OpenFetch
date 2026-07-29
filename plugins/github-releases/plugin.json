@@ -1,0 +1,17 @@
+{
+  "id": "github-releases",
+  "name": "GitHub Releases",
+  "version": "1.0.0",
+  "author": "OpenFetch Team",
+  "description": "Download assets from GitHub Release pages. Automatically lists all available assets with file sizes.",
+  "permissions": ["network", "filesystem"],
+  "patterns": ["^https://github\\.com/[^/]+/[^/]+/releases.*", "^https://api\\.github\\.com/repos/.*"],
+  "priority": 10,
+  "settings_schema": {
+    "github_token": {
+      "type": "string",
+      "label": "GitHub Token",
+      "description": "Optional GitHub personal access token for private repos and higher rate limits"
+    }
+  }
+}
