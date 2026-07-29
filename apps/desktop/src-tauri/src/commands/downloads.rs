@@ -1,10 +1,10 @@
 use std::sync::Arc;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use tauri::State;
 use tokio::sync::Mutex;
 
 use crate::engine::scheduler::DownloadScheduler;
-use crate::engine::downloader::{DownloadOptions, DownloadTask, DownloadStatus};
+use crate::engine::downloader::{DownloadOptions, DownloadTask};
 
 #[derive(Serialize)]
 pub struct Download {
@@ -28,6 +28,12 @@ impl From<&DownloadTask> for Download {
             downloaded_bytes: task.downloaded_bytes,
             speed_bps: task.speed_bps,
         }
+    }
+}
+
+impl From<DownloadTask> for Download {
+    fn from(task: DownloadTask) -> Self {
+        Self::from(&task)
     }
 }
 
@@ -82,7 +88,7 @@ pub async fn get_downloads(
     scheduler: State<'_, Arc<Mutex<DownloadScheduler>>>,
 ) -> Result<Vec<Download>, String> {
     let scheduler = scheduler.lock().await;
-    Ok(scheduler.get_all().iter().map(Download::from).collect())
+    Ok(scheduler.get_all().into_iter().map(Download::from).collect())
 }
 
 #[tauri::command]
