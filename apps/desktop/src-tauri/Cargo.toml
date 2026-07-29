@@ -39,6 +39,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 futures-util = "0.3"
 arboard = "3"
 regex = "1"
+open = "5"
 dirs = "5"
 mime_guess = "2"
 
