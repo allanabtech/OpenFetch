@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Download } from '../../lib/types'
-import { Pause, Play, Folder, Trash2, Film, Music, FileText, Package, FolderZip } from 'lucide-react'
+import { Pause, Play, Folder, Trash2, Package, FolderArchive } from 'lucide-react'
 import { pauseDownload, resumeDownload, deleteDownload, openDownloadFolder } from '../../lib/tauri'
 
 export default function DownloadCard({ download }: { download: Download }) {

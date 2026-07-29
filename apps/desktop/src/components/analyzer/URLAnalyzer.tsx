@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { UrlAnalysis } from '../../lib/types'
-import { Download, Check, Settings2, Film, Music, FileText, Package, FolderZip, Code2 } from 'lucide-react'
+import { Download, Check, Settings2, Film, Music, FileText, Package, FolderArchive, Code2 } from 'lucide-react'
 
 interface URLAnalyzerProps {
   analysis: UrlAnalysis | null
@@ -47,7 +47,7 @@ export default function URLAnalyzer({ analysis, onStartDownload }: URLAnalyzerPr
       case 'document':
         return { icon: <FileText className="w-8 h-8 text-emerald-400" />, bg: 'bg-gradient-to-br from-emerald-500/20 to-green-600/20 border-emerald-500/30' }
       case 'archive':
-        return { icon: <FolderZip className="w-8 h-8 text-amber-400" />, bg: 'bg-gradient-to-br from-amber-500/20 to-orange-600/20 border-amber-500/30' }
+        return { icon: <FolderArchive className="w-8 h-8 text-amber-400" />, bg: 'bg-gradient-to-br from-amber-500/20 to-orange-600/20 border-amber-500/30' }
       case 'repository':
         return { icon: <Code2 className="w-8 h-8 text-violet-400" />, bg: 'bg-gradient-to-br from-violet-500/20 to-indigo-600/20 border-violet-500/30' }
       default:
