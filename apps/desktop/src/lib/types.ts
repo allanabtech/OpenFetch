@@ -83,6 +83,9 @@ export interface AppSettings {
 export interface DownloadOptions {
   save_path?: string
   filename?: string
+  thumbnail_url?: string
+  media_type?: string
+  expected_size?: number
   chunk_count?: number
   max_retries?: number
   headers?: Record<string, string>

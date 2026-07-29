@@ -1,34 +1,47 @@
 import React from 'react'
+import { invoke } from '@tauri-apps/api/core'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { Minus, Square, X } from 'lucide-react'
 
 export default function Titlebar() {
   const handleMinimize = async () => {
     try {
-      await getCurrentWindow().minimize()
-    } catch (err) {
-      console.error('Minimize failed:', err)
+      await invoke('window_minimize')
+    } catch {
+      try {
+        await getCurrentWindow().minimize()
+      } catch (err) {
+        console.error('Minimize failed:', err)
+      }
     }
   }
 
   const handleMaximize = async () => {
     try {
-      const win = getCurrentWindow()
-      if (await win.isMaximized()) {
-        await win.unmaximize()
-      } else {
-        await win.maximize()
+      await invoke('window_toggle_maximize')
+    } catch {
+      try {
+        const win = getCurrentWindow()
+        if (await win.isMaximized()) {
+          await win.unmaximize()
+        } else {
+          await win.maximize()
+        }
+      } catch (err) {
+        console.error('Maximize failed:', err)
       }
-    } catch (err) {
-      console.error('Maximize failed:', err)
     }
   }
 
   const handleClose = async () => {
     try {
-      await getCurrentWindow().close()
-    } catch (err) {
-      console.error('Close failed:', err)
+      await invoke('window_close')
+    } catch {
+      try {
+        await getCurrentWindow().close()
+      } catch (err) {
+        console.error('Close failed:', err)
+      }
     }
   }
 
@@ -48,21 +61,21 @@ export default function Titlebar() {
       <div className="flex items-center gap-1">
         <button 
           onClick={handleMinimize}
-          className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 text-gray-400 transition-colors"
+          className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 text-gray-400 transition-colors cursor-pointer"
           title="Minimize"
         >
           <Minus size={14} />
         </button>
         <button 
           onClick={handleMaximize}
-          className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 text-gray-400 transition-colors"
+          className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 text-gray-400 transition-colors cursor-pointer"
           title="Maximize"
         >
           <Square size={12} />
         </button>
         <button 
           onClick={handleClose}
-          className="w-7 h-7 flex items-center justify-center rounded hover:bg-red-500/80 hover:text-white text-gray-400 transition-colors"
+          className="w-7 h-7 flex items-center justify-center rounded hover:bg-red-500/80 hover:text-white text-gray-400 transition-colors cursor-pointer"
           title="Close"
         >
           <X size={14} />

@@ -10,7 +10,10 @@ use crate::engine::downloader::{DownloadOptions, DownloadTask};
 pub struct Download {
     pub id: String,
     pub url: String,
+    pub filename: String,
     pub file_path: String,
+    pub thumbnail_url: Option<String>,
+    pub media_type: String,
     pub status: String,
     pub total_bytes: u64,
     pub downloaded_bytes: u64,
@@ -22,7 +25,10 @@ impl From<&DownloadTask> for Download {
         Self {
             id: task.id.clone(),
             url: task.url.clone(),
+            filename: task.filename.clone(),
             file_path: task.file_path.clone(),
+            thumbnail_url: task.thumbnail_url.clone(),
+            media_type: task.media_type.clone(),
             status: format!("{:?}", task.status),
             total_bytes: task.total_bytes,
             downloaded_bytes: task.downloaded_bytes,

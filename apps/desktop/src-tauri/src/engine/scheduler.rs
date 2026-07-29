@@ -31,12 +31,21 @@ impl DownloadScheduler {
         app_handle: Option<AppHandle>,
     ) -> Result<String> {
         let id = uuid::Uuid::new_v4().to_string();
+        let filename = if options.filename.is_empty() {
+            "download.bin".to_string()
+        } else {
+            options.filename.clone()
+        };
+
         let task = Arc::new(Mutex::new(DownloadTask {
             id: id.clone(),
             url: url.clone(),
+            filename,
             file_path: "".to_string(),
+            thumbnail_url: options.thumbnail_url.clone(),
+            media_type: options.media_type.clone().unwrap_or_else(|| "generic".to_string()),
             status: DownloadStatus::Pending,
-            total_bytes: 0,
+            total_bytes: options.expected_size.unwrap_or(0),
             downloaded_bytes: 0,
             speed_bps: 0,
             chunks: vec![],

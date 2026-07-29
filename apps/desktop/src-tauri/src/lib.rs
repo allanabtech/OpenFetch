@@ -73,6 +73,9 @@ pub fn run() {
             commands::settings::set_setting,
             commands::settings::choose_download_folder,
             commands::settings::reset_settings,
+            commands::window::window_minimize,
+            commands::window::window_toggle_maximize,
+            commands::window::window_close,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

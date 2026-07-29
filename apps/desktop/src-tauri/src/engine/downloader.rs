@@ -17,6 +17,9 @@ use crate::engine::chunk::Chunk;
 pub struct DownloadOptions {
     pub save_path: String,
     pub filename: String,
+    pub thumbnail_url: Option<String>,
+    pub media_type: Option<String>,
+    pub expected_size: Option<u64>,
     pub chunk_count: usize,
     pub max_retries: u32,
     pub headers: HashMap<String, String>,
@@ -28,6 +31,9 @@ impl Default for DownloadOptions {
         Self {
             save_path: "".to_string(),
             filename: "download.bin".to_string(),
+            thumbnail_url: None,
+            media_type: None,
+            expected_size: None,
             chunk_count: 8,
             max_retries: 3,
             headers: HashMap::new(),
@@ -50,7 +56,10 @@ pub enum DownloadStatus {
 pub struct DownloadTask {
     pub id: String,
     pub url: String,
+    pub filename: String,
     pub file_path: String,
+    pub thumbnail_url: Option<String>,
+    pub media_type: String,
     pub status: DownloadStatus,
     pub total_bytes: u64,
     pub downloaded_bytes: u64,
@@ -75,6 +84,15 @@ pub async fn download(
     let (id, url, target_path) = {
         let mut t = task.lock().await;
         t.status = DownloadStatus::Downloading;
+        if let Some(ref thumb) = options.thumbnail_url {
+            t.thumbnail_url = Some(thumb.clone());
+        }
+        if let Some(ref media) = options.media_type {
+            t.media_type = media.clone();
+        }
+        if !options.filename.is_empty() {
+            t.filename = options.filename.clone();
+        }
         
         let save_dir = if options.save_path.is_empty() || options.save_path == "." {
             dirs::download_dir().unwrap_or_else(|| PathBuf::from("."))
@@ -83,10 +101,10 @@ pub async fn download(
         };
 
         tokio::fs::create_dir_all(&save_dir).await.ok();
-        let file_name = if options.filename.is_empty() {
+        let file_name = if t.filename.is_empty() {
             "download.bin".to_string()
         } else {
-            options.filename.clone()
+            t.filename.clone()
         };
 
         let full_path = save_dir.join(file_name);
@@ -107,7 +125,13 @@ pub async fn download(
         }
     };
 
-    let total_size = response.content_length().unwrap_or(0);
+    let mut total_size = response.content_length().unwrap_or(0);
+    if total_size == 0 {
+        if let Some(exp) = options.expected_size {
+            total_size = exp;
+        }
+    }
+
     {
         let mut t = task.lock().await;
         t.total_bytes = total_size;
@@ -140,9 +164,12 @@ pub async fn download(
             0
         };
 
+        let current_total = if total_size > 0 { total_size } else { downloaded };
+
         {
             let mut t = task.lock().await;
             t.downloaded_bytes = downloaded;
+            t.total_bytes = current_total;
             t.speed_bps = speed;
         }
 
@@ -152,7 +179,7 @@ pub async fn download(
                 let payload = ProgressPayload {
                     id: id.clone(),
                     downloaded_bytes: downloaded,
-                    total_bytes: total_size,
+                    total_bytes: current_total,
                     speed_bps: speed,
                     status: "Downloading".to_string(),
                 };
@@ -163,18 +190,21 @@ pub async fn download(
 
     file.flush().await?;
 
+    let final_total = if downloaded > total_size { downloaded } else if total_size > 0 { total_size } else { downloaded };
+
     {
         let mut t = task.lock().await;
         t.status = DownloadStatus::Completed;
-        t.downloaded_bytes = if total_size > 0 { total_size } else { downloaded };
+        t.downloaded_bytes = final_total;
+        t.total_bytes = final_total;
         t.speed_bps = 0;
     }
 
     if let Some(ref handle) = app_handle {
         let payload = ProgressPayload {
             id: id.clone(),
-            downloaded_bytes: downloaded,
-            total_bytes: total_size,
+            downloaded_bytes: final_total,
+            total_bytes: final_total,
             speed_bps: 0,
             status: "Completed".to_string(),
         };
