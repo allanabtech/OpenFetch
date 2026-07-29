@@ -56,7 +56,7 @@ export interface PluginInfo {
   version: string
   author: string
   description: string
-  enabled: bool
+  enabled: boolean
   installed_at: string
   icon_url?: string
   homepage_url?: string
@@ -71,7 +71,7 @@ export interface AppSettings {
   max_concurrent_downloads: number
   bandwidth_limit_kbps: number
   enable_notifications: boolean
-  enable_clipboard_monitor: bool
+  enable_clipboard_monitor: boolean
   proxy_url?: string
   proxy_username?: string
   proxy_password?: string
@@ -84,6 +84,7 @@ export interface DownloadOptions {
   save_path?: string
   filename?: string
   chunk_count?: number
+  max_retries?: number
   headers?: Record<string, string>
   cookies?: Record<string, string> | string
 }

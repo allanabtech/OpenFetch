@@ -6,7 +6,9 @@ export const useQueue = () => {
     queryKey: ['queue'],
     queryFn: async () => {
       const downloads = await tauriApi.getDownloads()
-      return downloads.filter(d => ['pending', 'downloading'].includes(d.status)).sort((a, b) => b.priority - a.priority)
+      return downloads
+        .filter(d => ['pending', 'downloading', 'Pending', 'Downloading'].includes(d.status))
+        .sort((a, b) => (b.priority || 0) - (a.priority || 0))
     },
     refetchInterval: 1000,
   })
@@ -24,7 +26,6 @@ export const useSetPriority = () => {
 }
 
 export const useScheduleDownload = () => {
-  // Placeholder for scheduling feature
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, time }: { id: string; time: string }) => {
