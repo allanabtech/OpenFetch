@@ -22,6 +22,7 @@ pub async fn analyze_url(url_str: &str, client: &Client) -> Result<UrlAnalysis> 
     let parsed_url = Url::parse(url_str)?;
     let host = parsed_url.host_str().unwrap_or("");
     let path = parsed_url.path();
+    let lower_path = path.to_lowercase();
 
     let path_filename = path
         .split('/')
@@ -37,6 +38,12 @@ pub async fn analyze_url(url_str: &str, client: &Client) -> Result<UrlAnalysis> 
     let mut plugin_id = Some("generic-http".to_string());
     let mut thumbnail_url = None;
     let mut available_formats = vec!["Original File (Best Quality)".to_string()];
+
+    // Direct Image URL detection -> Thumbnail is the image itself!
+    if lower_path.ends_with(".png") || lower_path.ends_with(".jpg") || lower_path.ends_with(".jpeg") || lower_path.ends_with(".gif") || lower_path.ends_with(".webp") || lower_path.ends_with(".svg") {
+        media_type = "image".to_string();
+        thumbnail_url = Some(url_str.to_string());
+    }
 
     // Domain-specific detection
     if host.contains("youtube.com") || host.contains("youtu.be") {
@@ -92,7 +99,12 @@ pub async fn analyze_url(url_str: &str, client: &Client) -> Result<UrlAnalysis> 
             if let Some(ct) = res.headers().get(reqwest::header::CONTENT_TYPE) {
                 if let Ok(ct_str) = ct.to_str() {
                     content_type = Some(ct_str.to_string());
-                    if media_type == "generic" {
+                    if ct_str.contains("image/") {
+                        media_type = "image".to_string();
+                        if thumbnail_url.is_none() {
+                            thumbnail_url = Some(url_str.to_string());
+                        }
+                    } else if media_type == "generic" {
                         if ct_str.contains("video/") {
                             media_type = "video".to_string();
                             available_formats = vec![
@@ -108,8 +120,6 @@ pub async fn analyze_url(url_str: &str, client: &Client) -> Result<UrlAnalysis> 
                                 "FLAC Lossless".to_string(),
                                 "WAV Audio".to_string(),
                             ];
-                        } else if ct_str.contains("image/") {
-                            media_type = "image".to_string();
                         } else if ct_str.contains("application/pdf") {
                             media_type = "document".to_string();
                         } else if ct_str.contains("zip") || ct_str.contains("tar") || ct_str.contains("gzip") {
@@ -135,12 +145,18 @@ pub async fn analyze_url(url_str: &str, client: &Client) -> Result<UrlAnalysis> 
         file_name = Some("download.bin".to_string());
     }
 
+    let favicon = if !host.is_empty() {
+        Some(format!("https://www.google.com/s2/favicons?domain={}&sz=128", host))
+    } else {
+        None
+    };
+
     Ok(UrlAnalysis {
         url: url_str.to_string(),
         title,
         description: Some(format!("Host: {}", host)),
         thumbnail_url,
-        favicon_url: Some(format!("https://{}/favicon.ico", host)),
+        favicon_url: favicon,
         media_type,
         file_name,
         file_size,

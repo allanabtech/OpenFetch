@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Download } from '../../lib/types'
-import { Pause, Play, Folder, Trash2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Pause, Play, Folder, Trash2, Film, Music, FileText, Package, FolderZip } from 'lucide-react'
 import { pauseDownload, resumeDownload, deleteDownload, openDownloadFolder } from '../../lib/tauri'
 
 export default function DownloadCard({ download }: { download: Download }) {
@@ -13,6 +13,16 @@ export default function DownloadCard({ download }: { download: Download }) {
   const speedMBs = (download.speed_bps / (1024 * 1024)).toFixed(2)
   const downloadedMB = (download.downloaded_bytes / (1024 * 1024)).toFixed(2)
   const totalMB = download.total_bytes > 0 ? (download.total_bytes / (1024 * 1024)).toFixed(2) : '?'
+
+  const domain = (() => {
+    try {
+      return new URL(download.url).hostname
+    } catch {
+      return ''
+    }
+  })()
+
+  const faviconUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null
 
   const handlePauseResume = async () => {
     if (download.status === 'Downloading') {
@@ -38,6 +48,17 @@ export default function DownloadCard({ download }: { download: Download }) {
       className="glass p-4 group relative overflow-hidden rounded-xl border border-white/10"
     >
       <div className="flex items-start justify-between gap-4">
+        {/* Thumbnail Preview Badge */}
+        <div className="w-12 h-12 rounded-lg bg-surface/90 border border-white/10 overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
+          {download.thumbnail_url ? (
+            <img src={download.thumbnail_url} alt="Thumbnail" className="w-full h-full object-cover rounded-lg" onError={(e) => { (e.target as HTMLElement).style.display = 'none' }} />
+          ) : faviconUrl ? (
+            <img src={faviconUrl} alt="Favicon" className="w-7 h-7 rounded object-contain" onError={(e) => { (e.target as HTMLElement).style.display = 'none' }} />
+          ) : (
+            <Package size={20} className="text-accent-cyan" />
+          )}
+        </div>
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-white truncate text-sm">{filename}</h3>

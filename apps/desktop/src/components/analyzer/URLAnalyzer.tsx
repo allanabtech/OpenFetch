@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { UrlAnalysis } from '../../lib/types'
-import { Download, Check, Settings2, Film, Music, FileText, Package } from 'lucide-react'
+import { Download, Check, Settings2, Film, Music, FileText, Package, FolderZip, Code2 } from 'lucide-react'
 
 interface URLAnalyzerProps {
   analysis: UrlAnalysis | null
@@ -38,14 +38,24 @@ export default function URLAnalyzer({ analysis, onStartDownload }: URLAnalyzerPr
     ? `${(analysis.file_size / (1024 * 1024)).toFixed(2)} MB`
     : 'Stream / Variable Size'
 
-  const getMediaIcon = (type?: string) => {
+  const getMediaCategoryDisplay = (type?: string) => {
     switch (type?.toLowerCase()) {
-      case 'video': return <Film className="w-6 h-6 text-accent-cyan" />
-      case 'audio': return <Music className="w-6 h-6 text-violet-400" />
-      case 'document': return <FileText className="w-6 h-6 text-yellow-400" />
-      default: return <Package className="w-6 h-6 text-accent-cyan" />
+      case 'video':
+        return { icon: <Film className="w-8 h-8 text-cyan-400" />, bg: 'bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border-cyan-500/30' }
+      case 'audio':
+        return { icon: <Music className="w-8 h-8 text-violet-400" />, bg: 'bg-gradient-to-br from-violet-500/20 to-purple-600/20 border-violet-500/30' }
+      case 'document':
+        return { icon: <FileText className="w-8 h-8 text-emerald-400" />, bg: 'bg-gradient-to-br from-emerald-500/20 to-green-600/20 border-emerald-500/30' }
+      case 'archive':
+        return { icon: <FolderZip className="w-8 h-8 text-amber-400" />, bg: 'bg-gradient-to-br from-amber-500/20 to-orange-600/20 border-amber-500/30' }
+      case 'repository':
+        return { icon: <Code2 className="w-8 h-8 text-violet-400" />, bg: 'bg-gradient-to-br from-violet-500/20 to-indigo-600/20 border-violet-500/30' }
+      default:
+        return { icon: <Package className="w-8 h-8 text-accent-cyan" />, bg: 'bg-gradient-to-br from-white/10 to-white/5 border-white/10' }
     }
   }
+
+  const categoryStyle = getMediaCategoryDisplay(analysis.media_type)
 
   return (
     <motion.div 
@@ -54,18 +64,22 @@ export default function URLAnalyzer({ analysis, onStartDownload }: URLAnalyzerPr
       className="glass p-6 mt-6 w-full max-w-2xl mx-auto rounded-xl border border-accent-violet/30 shadow-glow-violet text-left"
     >
       <div className="flex gap-4 items-start">
-        <div className="w-24 h-24 bg-accent-violet/20 border border-accent-violet/40 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 relative">
+        {/* Universal Thumbnail Box */}
+        <div className={`w-28 h-28 border rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 relative shadow-md ${categoryStyle.bg}`}>
           {analysis.thumbnail_url ? (
             <img 
               src={analysis.thumbnail_url} 
               alt="Thumbnail" 
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-cover rounded-xl"
               onError={(e) => { (e.target as HTMLElement).style.display = 'none' }} 
             />
           ) : analysis.favicon_url ? (
-            <img src={analysis.favicon_url} alt="Favicon" className="w-10 h-10 rounded" onError={(e) => { (e.target as HTMLElement).style.display = 'none' }} />
+            <div className="flex flex-col items-center gap-1.5 p-2">
+              <img src={analysis.favicon_url} alt="Favicon" className="w-12 h-12 rounded-lg object-contain" onError={(e) => { (e.target as HTMLElement).style.display = 'none' }} />
+              <span className="text-[10px] text-gray-400 font-mono font-medium uppercase tracking-wider">{analysis.media_type}</span>
+            </div>
           ) : (
-            getMediaIcon(analysis.media_type)
+            categoryStyle.icon
           )}
         </div>
 
@@ -115,7 +129,7 @@ export default function URLAnalyzer({ analysis, onStartDownload }: URLAnalyzerPr
       >
         {success ? (
           <>
-            <Check className="w-5 h-5" /> Download Started! Go to Downloads tab
+            <Check className="w-5 h-5" /> Download Started! Check Downloads tab
           </>
         ) : downloading ? (
           'Starting Download...'
