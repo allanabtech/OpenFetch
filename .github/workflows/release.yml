@@ -106,6 +106,9 @@ jobs:
             libsoup-3.0-dev \
             libjavascriptcoregtk-4.1-dev
 
+      - name: Generate Tauri icons
+        run: pnpm --filter desktop tauri icon src-tauri/icons/128x128@2x.png
+
       - name: Build & publish release
         uses: tauri-apps/tauri-action@v0
         env:
