@@ -81,7 +81,7 @@ pub async fn download(
     options: DownloadOptions,
     app_handle: Option<AppHandle>,
 ) -> Result<()> {
-    let (id, url, target_path) = {
+    let (id, original_url, target_path) = {
         let mut t = task.lock().await;
         t.status = DownloadStatus::Downloading;
         if let Some(ref thumb) = options.thumbnail_url {
@@ -116,7 +116,46 @@ pub async fn download(
         .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) OpenFetch/0.1.0")
         .build()?;
 
-    let response = match client.get(&url).send().await {
+    let mut download_target_url = original_url.clone();
+
+    // Cobalt Media Stream Resolution for YouTube/TikTok/Twitter/Instagram links
+    if original_url.contains("youtube.com") || original_url.contains("youtu.be") || original_url.contains("tiktok.com") || original_url.contains("twitter.com") || original_url.contains("instagram.com") {
+        let is_audio = options.filename.ends_with(".mp3") || options.media_type.as_deref() == Some("audio");
+        let video_quality = if options.filename.contains("720") { "720" }
+            else if options.filename.contains("480") { "480" }
+            else if options.filename.contains("360") { "360" }
+            else { "1080" };
+
+        let payload = if is_audio {
+            serde_json::json!({
+                "url": original_url,
+                "downloadMode": "audio",
+                "audioFormat": "mp3"
+            })
+        } else {
+            serde_json::json!({
+                "url": original_url,
+                "videoQuality": video_quality
+            })
+        };
+
+        if let Ok(cobalt_res) = client.post("https://api.cobalt.tools")
+            .header("Accept", "application/json")
+            .header("Content-Type", "application/json")
+            .json(&payload)
+            .send().await
+        {
+            if cobalt_res.status().is_success() {
+                if let Ok(cobalt_json) = cobalt_res.json::<serde_json::Value>().await {
+                    if let Some(stream_url) = cobalt_json.get("url").and_then(|v| v.as_str()) {
+                        download_target_url = stream_url.to_string();
+                    }
+                }
+            }
+        }
+    }
+
+    let response = match client.get(&download_target_url).send().await {
         Ok(res) => res,
         Err(err) => {
             let mut t = task.lock().await;
@@ -164,7 +203,7 @@ pub async fn download(
             0
         };
 
-        let current_total = if total_size > 0 { total_size } else { downloaded };
+        let current_total = if downloaded > total_size { downloaded } else if total_size > 0 { total_size } else { downloaded };
 
         {
             let mut t = task.lock().await;

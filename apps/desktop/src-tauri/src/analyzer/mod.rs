@@ -39,7 +39,7 @@ pub async fn analyze_url(url_str: &str, client: &Client) -> Result<UrlAnalysis> 
     let mut thumbnail_url = None;
     let mut available_formats = vec!["Original File (Best Quality)".to_string()];
 
-    // Direct Image URL detection -> Thumbnail is the image itself!
+    // Direct Image URL detection
     if lower_path.ends_with(".png") || lower_path.ends_with(".jpg") || lower_path.ends_with(".jpeg") || lower_path.ends_with(".gif") || lower_path.ends_with(".webp") || lower_path.ends_with(".svg") {
         media_type = "image".to_string();
         thumbnail_url = Some(url_str.to_string());
@@ -67,12 +67,12 @@ pub async fn analyze_url(url_str: &str, client: &Client) -> Result<UrlAnalysis> 
         }
 
         available_formats = vec![
-            "1080p Full HD (MP4)".to_string(),
-            "720p HD (MP4)".to_string(),
-            "480p SD (MP4)".to_string(),
-            "360p Mobile (MP4)".to_string(),
-            "MP3 High Quality (320kbps Audio)".to_string(),
-            "MP3 Standard (128kbps Audio)".to_string(),
+            "1080p Full HD (MP4) ~ 150 MB".to_string(),
+            "720p HD (MP4) ~ 85 MB".to_string(),
+            "480p SD (MP4) ~ 45 MB".to_string(),
+            "360p Mobile (MP4) ~ 25 MB".to_string(),
+            "MP3 High Quality (320kbps Audio) ~ 10 MB".to_string(),
+            "MP3 Standard (128kbps Audio) ~ 4 MB".to_string(),
         ];
     } else if host.contains("github.com") {
         if path.contains("/releases/download/") {
@@ -108,17 +108,17 @@ pub async fn analyze_url(url_str: &str, client: &Client) -> Result<UrlAnalysis> 
                         if ct_str.contains("video/") {
                             media_type = "video".to_string();
                             available_formats = vec![
-                                "1080p Full HD (MP4)".to_string(),
-                                "720p HD (MP4)".to_string(),
+                                "1080p Full HD (MP4) ~ 150 MB".to_string(),
+                                "720p HD (MP4) ~ 85 MB".to_string(),
                                 "Original Video Stream".to_string(),
                             ];
                         } else if ct_str.contains("audio/") {
                             media_type = "audio".to_string();
                             available_formats = vec![
-                                "MP3 High Quality (320kbps)".to_string(),
-                                "MP3 Standard (128kbps)".to_string(),
-                                "FLAC Lossless".to_string(),
-                                "WAV Audio".to_string(),
+                                "MP3 High Quality (320kbps) ~ 10 MB".to_string(),
+                                "MP3 Standard (128kbps) ~ 4 MB".to_string(),
+                                "FLAC Lossless ~ 35 MB".to_string(),
+                                "WAV Audio ~ 45 MB".to_string(),
                             ];
                         } else if ct_str.contains("application/pdf") {
                             media_type = "document".to_string();
