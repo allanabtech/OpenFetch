@@ -94,11 +94,11 @@ impl DownloadScheduler {
         self.semaphore = Arc::new(Semaphore::new(n));
     }
     
-    pub fn set_priority(&mut self, id: &str, priority: i32) -> Result<()> {
+    pub fn set_priority(&mut self, _id: &str, _priority: i32) -> Result<()> {
         Ok(())
     }
     
-    pub fn open_folder(&self, id: &str) -> Result<()> {
+    pub fn open_folder(&self, _id: &str) -> Result<()> {
         Ok(())
     }
 }

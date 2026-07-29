@@ -24,23 +24,23 @@ pub async fn get_settings() -> Result<AppSettings, String> {
 }
 
 #[tauri::command]
-pub async fn set_settings(settings: AppSettings) -> Result<(), String> {
+pub async fn set_settings(_settings: AppSettings) -> Result<(), String> {
     Ok(())
 }
 
 #[tauri::command]
-pub async fn get_setting(key: String) -> Result<serde_json::Value, String> {
+pub async fn get_setting(_key: String) -> Result<serde_json::Value, String> {
     Ok(serde_json::Value::Null)
 }
 
 #[tauri::command]
-pub async fn set_setting(key: String, value: serde_json::Value) -> Result<(), String> {
+pub async fn set_setting(_key: String, _value: serde_json::Value) -> Result<(), String> {
     Ok(())
 }
 
 #[tauri::command]
 pub async fn choose_download_folder(app: tauri::AppHandle) -> Result<Option<String>, String> {
-    let result = app.dialog().file().pick_folder();
+    let result = app.dialog().file().blocking_pick_folder();
     match result {
         Some(path) => Ok(Some(path.to_string())),
         None => Ok(None),

@@ -28,15 +28,15 @@ pub struct PluginInfo {
 }
 
 pub struct PluginLoader {
-    plugin_dir: PathBuf,
-    plugins: HashMap<String, PluginManifest>,
+    pub plugin_dir: PathBuf,
+    pub loaded_plugins: HashMap<String, PluginManifest>,
 }
 
 impl PluginLoader {
     pub fn new(plugin_dir: &Path) -> Self {
         Self {
             plugin_dir: plugin_dir.to_path_buf(),
-            plugins: HashMap::new(),
+            loaded_plugins: HashMap::new(),
         }
     }
 
@@ -45,7 +45,7 @@ impl PluginLoader {
         Ok(())
     }
 
-    pub fn load_plugin(&self, path: &Path) -> Result<PluginManifest> {
+    pub fn load_plugin(&self, _path: &Path) -> Result<PluginManifest> {
         // Stub implementation
         Ok(PluginManifest {
             id: "stub".into(),
@@ -64,10 +64,10 @@ impl PluginLoader {
         vec![]
     }
 
-    pub fn enable(&mut self, id: &str) {}
-    pub fn disable(&mut self, id: &str) {}
+    pub fn enable(&mut self, _id: &str) {}
+    pub fn disable(&mut self, _id: &str) {}
 
-    pub fn find_plugin_for_url(&self, url: &str) -> Option<&PluginManifest> {
+    pub fn find_plugin_for_url(&self, _url: &str) -> Option<&PluginManifest> {
         None
     }
 }

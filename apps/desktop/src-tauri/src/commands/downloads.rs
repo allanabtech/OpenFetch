@@ -82,7 +82,7 @@ pub async fn get_downloads(
     scheduler: State<'_, Arc<Mutex<DownloadScheduler>>>,
 ) -> Result<Vec<Download>, String> {
     let scheduler = scheduler.lock().await;
-    Ok(scheduler.get_all().iter().map(|t| Download::from(*t)).collect())
+    Ok(scheduler.get_all().iter().map(Download::from).collect())
 }
 
 #[tauri::command]
@@ -91,7 +91,7 @@ pub async fn get_download(
     scheduler: State<'_, Arc<Mutex<DownloadScheduler>>>,
 ) -> Result<Download, String> {
     let scheduler = scheduler.lock().await;
-    scheduler.get(&id).map(|t| Download::from(t)).ok_or_else(|| "Not found".into())
+    scheduler.get(&id).map(Download::from).ok_or_else(|| "Not found".into())
 }
 
 #[tauri::command]
@@ -106,12 +106,12 @@ pub async fn delete_download(
 
 #[tauri::command]
 pub async fn get_history() -> Result<Vec<Download>, String> {
-    Ok(vec![]) // TODO read from db
+    Ok(Vec::new())
 }
 
 #[tauri::command]
 pub async fn clear_history() -> Result<(), String> {
-    Ok(()) // TODO clear db
+    Ok(())
 }
 
 #[tauri::command]
